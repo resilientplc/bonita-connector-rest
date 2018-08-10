@@ -402,15 +402,20 @@ public class RESTConnector extends AbstractRESTConnectorImpl {
         if (response != null) {
             setBody(""); // So you always get a bodyAsString
             final HttpEntity entity = response.getEntity();
-            if (entity != null) {
+            if (entity == null) {
+                LOGGER.warning("Entity is null");
+            } else {
                 if (request.isIgnore()) {
+                    LOGGER.fine("Entity is present, but request is set to ignore it");
                     EntityUtils.consumeQuietly(entity);
                 } else {
                     try (final InputStream inputStream = entity.getContent()) {
                         final StringWriter stringWriter = new StringWriter();
                         IOUtils.copy(inputStream, stringWriter);
                         final String stringContent = stringWriter.toString();
-                        if (stringContent != null) {
+                        if (stringContent == null) {
+                            LOGGER.warning("Null string content");
+                        } else {
                             final String bodyResponse = stringContent.trim();
                             setBody(bodyResponse);
                             setBody(Collections.<String, Object> emptyMap());
@@ -418,6 +423,7 @@ public class RESTConnector extends AbstractRESTConnectorImpl {
                             if (contentType != null
                                     && !Strings.isNullOrEmpty(contentType.getValue())
                                     && contentType.getValue().toLowerCase().contains("json")) {
+                                LOGGER.fine("Setting JSON output in body as object");
                                 setBody(new ObjectMapper().readValue(bodyResponse, bodyResponse.startsWith("[") ? List.class : HashMap.class));
                             } else {
                                 LOGGER.warning(String.format("Body as map output cannot be set. Response content type is not json compliant(%s).",
@@ -437,7 +443,7 @@ public class RESTConnector extends AbstractRESTConnectorImpl {
             setExceptionDetail("");
             LOGGER.fine("All outputs have been set.");
         } else {
-            LOGGER.fine("Response is null.");
+            LOGGER.warning("Response is null.");
         }
     }
 
