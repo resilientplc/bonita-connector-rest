@@ -614,7 +614,26 @@ public class RESTConnectorTest extends AcceptanceTestBase {
                 .withRequestBody(equalTo(EMPTY))
                 .willReturn(aResponse().withStatus(HttpStatus.SC_OK)));
 
-        checkResultIsPresent(executeConnector(buildBodyParametersSet(EMPTY)));
+        final Map<String, Object> outputs = executeConnector(buildBodyParametersSet(EMPTY));
+        checkResultIsPresent(outputs);
+        final Object bodyAsString = outputs.get(AbstractRESTConnectorImpl.BODY_AS_STRING_OUTPUT_PARAMETER);
+        assertEquals("", bodyAsString);
+    }
+
+    /**
+     * Test no body
+     * @throws BonitaException exception
+     * @throws InterruptedException exception
+     */
+    @Test
+    public void noBody() throws BonitaException, InterruptedException {
+        stubFor(post(urlEqualTo("/"))
+            .willReturn(aResponse().withStatus(HttpStatus.SC_OK)));
+
+        final Map<String, Object> outputs = executeConnector(buildBodyParametersSet(EMPTY));
+        checkResultIsPresent(outputs);
+        final Object bodyAsString = outputs.get(AbstractRESTConnectorImpl.BODY_AS_STRING_OUTPUT_PARAMETER);
+        assertEquals("", bodyAsString);
     }
 
     /**

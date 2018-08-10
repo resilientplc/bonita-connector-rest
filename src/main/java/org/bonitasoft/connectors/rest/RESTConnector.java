@@ -398,14 +398,15 @@ public class RESTConnector extends AbstractRESTConnectorImpl {
      * @throws
      *         @throws IOException
      */
-    private void setOutputs(final HttpResponse response, Request request) throws IOException {
+    private void setOutputs(final HttpResponse response, final Request request) throws IOException {
         if (response != null) {
+            setBody(""); // So you always get a bodyAsString
             final HttpEntity entity = response.getEntity();
             if (entity != null) {
                 if (request.isIgnore()) {
                     EntityUtils.consumeQuietly(entity);
                 } else {
-                    try (InputStream inputStream = entity.getContent()) {
+                    try (final InputStream inputStream = entity.getContent()) {
                         final StringWriter stringWriter = new StringWriter();
                         IOUtils.copy(inputStream, stringWriter);
                         final String stringContent = stringWriter.toString();
